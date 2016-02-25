@@ -1,5 +1,13 @@
-# vim:set ft=dockerfile:
+#
+# Dockerfile for postgresql db snapshot. Data volumes are expressly removed. 
+# 
+# This should never be used in production, only in development, where db data 
+# is not persisted while db states are to be tracked and returned to
+#
+# Forked from https://github.com/docker-library/postgres/
 FROM debian:jessie
+
+MAINTAINER jan.chimiak@gmail.com
 
 # explicitly set user/group IDs
 RUN groupadd -r postgres --gid=999 && useradd -r -g postgres --uid=999 postgres
@@ -40,7 +48,9 @@ RUN mkdir -p /var/run/postgresql && chown -R postgres /var/run/postgresql
 
 ENV PATH /usr/lib/postgresql/$PG_MAJOR/bin:$PATH
 ENV PGDATA /var/lib/postgresql/data
-VOLUME /var/lib/postgresql/data
+
+# logs volume, to expressly avoid persisting logs unless configured to do so
+VOLUME  ["/var/log/postgresql"]
 
 COPY docker-entrypoint.sh /
 
@@ -48,3 +58,4 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 5432
 CMD ["postgres"]
+
